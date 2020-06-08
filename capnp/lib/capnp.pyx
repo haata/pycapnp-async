@@ -1110,6 +1110,7 @@ cdef class _DynamicStructReader:
         return builder.set_root(self)
 
     property total_size:
+        """TODO"""
         def __get__(self):
             size = self.thisptr.totalSize()
             return _MessageSize(size.wordCount, size.capCount)
@@ -1441,6 +1442,7 @@ cdef class _DynamicStructBuilder:
                         raise
 
     property total_size:
+        """TODO"""
         def __get__(self):
             size = self.thisptr.totalSize()
             return _MessageSize(size.wordCount, size.capCount)
@@ -1555,7 +1557,7 @@ cdef class _DynamicObjectReader:
         return _DynamicCapabilityClient()._init(self.thisptr.getAsCapability(s.thisptr), self._parent)
 
     cpdef as_list(self, schema) except +reraise_kj_exception:
-        cdef ListSchema s
+        cdef _ListSchema s
         if hasattr(schema, 'schema'):
             s = schema.schema
         else:
@@ -1597,7 +1599,7 @@ cdef class _DynamicObjectBuilder:
         return _DynamicCapabilityClient()._init(self.thisptr.getAsCapability(s.thisptr), self._parent)
 
     cpdef as_list(self, schema) except +reraise_kj_exception:
-        cdef ListSchema s
+        cdef _ListSchema s
         if hasattr(schema, 'schema'):
             s = schema.schema
         else:
@@ -1614,7 +1616,7 @@ cdef class _DynamicObjectBuilder:
         self.thisptr.setAsText(text)
 
     cpdef init_as_list(self, schema, size):
-        cdef ListSchema s
+        cdef _ListSchema s
         if hasattr(schema, 'schema'):
             s = schema.schema
         else:
@@ -1623,12 +1625,15 @@ cdef class _DynamicObjectBuilder:
         return _DynamicListBuilder()._init(self.thisptr.initAsList(s.thisptr, size), self._parent)
 
     cpdef as_text(self) except +reraise_kj_exception:
+        """TODO"""
         return (<char*>self.thisptr.getAsText().cStr())[:]
 
     cpdef as_reader(self):
+        """TODO"""
         return _DynamicObjectReader()._init(self.thisptr.asReader(), self._parent)
 
 cdef class _EventLoop:
+    """TODO"""
     cdef capnp.AsyncIoContext * thisptr
 
     def __init__(self):
@@ -1682,10 +1687,11 @@ cdef class _Timer:
         return _VoidPromise()._init(self.thisptr.afterDelay(capnp.Nanoseconds(time)))
 
 def getTimer():
+    """TODO"""
     return _Timer()._init(helpers.getTimer(C_DEFAULT_EVENT_LOOP_GETTER().thisptr))
 
 cpdef remove_event_loop(ignore_errors=False):
-    'Remove the global event loop'
+    '''Remove the global event loop'''
     global C_DEFAULT_EVENT_LOOP
     global _THREAD_LOCAL_EVENT_LOOPS
     global _C_DEFAULT_EVENT_LOOP_LOCAL
@@ -1722,15 +1728,18 @@ cpdef create_event_loop(threaded=True):
         C_DEFAULT_EVENT_LOOP = _EventLoop()
 
 cpdef reset_event_loop():
+    """TODO"""
     global C_DEFAULT_EVENT_LOOP
     C_DEFAULT_EVENT_LOOP._remove()
     C_DEFAULT_EVENT_LOOP = _EventLoop()
 
 def wait_forever():
+    """TODO"""
     cdef _EventLoop loop = C_DEFAULT_EVENT_LOOP_GETTER()
     helpers.waitNeverDone(deref(loop.thisptr).waitScope)
 
 def poll_once():
+    """TODO"""
     cdef _EventLoop loop = C_DEFAULT_EVENT_LOOP_GETTER()
     helpers.pollWaitScope(deref(loop.thisptr).waitScope)
 
@@ -1767,6 +1776,7 @@ cdef class _CallContext:
         return promise
 
 cdef class _Promise:
+    """TODO"""
     cdef PyPromise * thisptr
     cdef public bint is_consumed
     cdef public object _parent, _obj
@@ -1793,6 +1803,7 @@ cdef class _Promise:
         del self.thisptr
 
     cpdef wait(self) except +reraise_kj_exception:
+        """TODO"""
         if self.is_consumed:
             raise KjException('Promise was already used in a consuming operation. You can no longer use this Promise object')
 
@@ -1804,6 +1815,7 @@ cdef class _Promise:
         return ret
 
     cpdef then(self, func, error_func=None) except +reraise_kj_exception:
+        """TODO"""
         if self.is_consumed:
             raise KjException('Promise was already used in a consuming operation. You can no longer use this Promise object')
 
@@ -1822,6 +1834,7 @@ cdef class _Promise:
         return _Promise()._init(new_promise.thisptr.attach(capnp.makePyRefCounter(<PyObject *>func), capnp.makePyRefCounter(<PyObject *>error_func)), new_promise)
 
     def attach(self, *args):
+        """TODO"""
         if self.is_consumed:
             raise KjException('Promise was already used in a consuming operation. You can no longer use this Promise object')
 
@@ -1831,6 +1844,7 @@ cdef class _Promise:
         return ret
 
     cpdef cancel(self, numParents=1) except +reraise_kj_exception:
+        """TODO"""
         if numParents > 0 and hasattr(self._parent, 'cancel'):
             self._parent.cancel(numParents - 1)
 
@@ -1840,6 +1854,7 @@ cdef class _Promise:
 
 
 cdef class _VoidPromise:
+    """TODO"""
     cdef VoidPromise * thisptr
     cdef public bint is_consumed
     cdef public object _parent
@@ -1859,6 +1874,7 @@ cdef class _VoidPromise:
         del self.thisptr
 
     cpdef wait(self) except +reraise_kj_exception:
+        """TODO"""
         if self.is_consumed:
             raise KjException('Promise was already used in a consuming operation. You can no longer use this Promise object')
 
@@ -1867,6 +1883,7 @@ cdef class _VoidPromise:
         self.is_consumed = True
 
     cpdef then(self, func, error_func=None) except +reraise_kj_exception:
+        """TODO"""
         if self.is_consumed:
             raise KjException('Promise was already used in a consuming operation. You can no longer use this Promise object')
 
@@ -1885,11 +1902,13 @@ cdef class _VoidPromise:
         return _Promise()._init(new_promise.thisptr.attach(capnp.makePyRefCounter(<PyObject *>func), capnp.makePyRefCounter(<PyObject *>error_func)), new_promise)
 
     cpdef as_pypromise(self) except +reraise_kj_exception:
+        """TODO"""
         if self.is_consumed:
             raise KjException('Promise was already used in a consuming operation. You can no longer use this Promise object')
         return _Promise()._init(helpers.convert_to_pypromise(deref(self.thisptr)), self)
 
     def attach(self, *args):
+        """TODO"""
         if self.is_consumed:
             raise KjException('Promise was already used in a consuming operation. You can no longer use this Promise object')
 
@@ -1899,6 +1918,7 @@ cdef class _VoidPromise:
         return ret
 
     cpdef cancel(self, numParents=1) except +reraise_kj_exception:
+        """TODO"""
         if numParents > 0 and hasattr(self._parent, 'cancel'):
             self._parent.cancel(numParents - 1)
 
@@ -1907,6 +1927,7 @@ cdef class _VoidPromise:
         self.thisptr = NULL
 
 cdef class _RemotePromise:
+    """TODO"""
     cdef RemotePromise * thisptr
     cdef public bint is_consumed
     cdef public object _parent
@@ -1929,6 +1950,7 @@ cdef class _RemotePromise:
         return _Response()._init_childptr(helpers.waitRemote(self.thisptr, deref(self._event_loop.thisptr).waitScope), self._parent)
 
     def wait(self):
+        """TODO"""
         if self.is_consumed:
             raise KjException('Promise was already used in a consuming operation. You can no longer use this Promise object')
 
@@ -1937,6 +1959,7 @@ cdef class _RemotePromise:
         return ret
 
     async def a_wait(self):
+        """TODO"""
         if self.is_consumed:
             raise KjException('Promise was already used in a consuming operation. You can no longer use this Promise object')
 
@@ -1948,11 +1971,13 @@ cdef class _RemotePromise:
         return ret
 
     cpdef as_pypromise(self) except +reraise_kj_exception:
+        """TODO"""
         if self.is_consumed:
             raise KjException('Promise was already used in a consuming operation. You can no longer use this Promise object')
         return _Promise()._init(helpers.convert_to_pypromise(deref(self.thisptr)), self)
 
     cpdef then(self, func, error_func=None) except +reraise_kj_exception:
+        """TODO"""
         if self.is_consumed:
             raise KjException('Promise was already used in a consuming operation. You can no longer use this Promise object')
 
@@ -1996,9 +2021,11 @@ cdef class _RemotePromise:
         return list(set(self.schema.fieldnames + tuple(dir(self.__class__))))
 
     def to_dict(self, verbose=False, ordered=False):
+        """TODO"""
         return _to_dict(self, verbose, ordered)
 
     cpdef cancel(self, numParents=1) except +reraise_kj_exception:
+        """TODO"""
         if numParents > 0 and hasattr(self._parent, 'cancel'):
             self._parent.cancel(numParents - 1)
 
@@ -2016,6 +2043,7 @@ cdef class _RemotePromise:
     #     return ret
 
 cpdef join_promises(promises) except +reraise_kj_exception:
+    """TODO"""
     heap = capnp.heapArrayBuilderPyPromise(len(promises))
 
     new_promises = []
@@ -2091,6 +2119,7 @@ cdef class _DynamicCapabilityServer:
             raise e._to_python(), None, _sys.exc_info()[2]
 
 cdef class _DynamicCapabilityClient:
+    """TODO"""
     cdef C_DynamicCapability.Client thisptr
     cdef public object _server, _parent, _cached_schema
 
@@ -2173,6 +2202,7 @@ cdef class _DynamicCapabilityClient:
             raise e._to_python(), None, _sys.exc_info()[2]
 
     cpdef upcast(self, schema) except +reraise_kj_exception:
+        """TODO"""
         cdef _InterfaceSchema s
         if hasattr(schema, 'schema'):
             s = schema.schema
@@ -2182,6 +2212,7 @@ cdef class _DynamicCapabilityClient:
         return _DynamicCapabilityClient()._init(self.thisptr.upcast(s.thisptr), self._parent)
 
     cpdef cast_as(self, schema) except +reraise_kj_exception:
+        """TODO"""
         cdef _InterfaceSchema s
         if hasattr(schema, 'schema'):
             s = schema.schema
@@ -2200,6 +2231,7 @@ cdef class _DynamicCapabilityClient:
         return list(set(self.schema.method_names_inherited) + tuple(dir(self.__class__)))
 
 cdef class _CapabilityClient:
+    """TODO"""
     cdef C_Capability.Client * thisptr
     cdef public object _parent
 
@@ -2212,6 +2244,7 @@ cdef class _CapabilityClient:
         del self.thisptr
 
     cpdef cast_as(self, schema):
+        """TODO"""
         cdef _InterfaceSchema s
         if hasattr(schema, 'schema'):
             s = schema.schema
@@ -2220,6 +2253,7 @@ cdef class _CapabilityClient:
         return _DynamicCapabilityClient()._init(self.thisptr.castAs(s.thisptr), self._parent)
 
 cdef class _TwoPartyVatNetwork:
+    """TODO"""
     cdef Own[C_TwoPartyVatNetwork] thisptr
     cdef _AsyncIoStream stream
 
@@ -2233,9 +2267,11 @@ cdef class _TwoPartyVatNetwork:
         return self
 
     cpdef on_disconnect(self) except +reraise_kj_exception:
+        """TODO"""
         return _VoidPromise()._init(deref(self.thisptr).onDisconnect(), self)
 
 cdef class TwoPartyClient:
+    """TODO"""
     cdef RpcSystem * thisptr
     cdef public _TwoPartyVatNetwork _network
     cdef public object _orig_stream
@@ -2266,6 +2302,7 @@ cdef class TwoPartyClient:
         Py_INCREF(self._network) # TODO:MEMORY: attach this to onDrained, also figure out what's leaking
 
     async def read(self, bufsize):
+        """TODO"""
         cdef AsyncIoStreamReadHelper *reader = new AsyncIoStreamReadHelper(
             self._pipe._pipe.ends[1].get(),
             &self._pipe._event_loop.thisptr.waitScope,
@@ -2281,6 +2318,7 @@ cdef class TwoPartyClient:
         return read_buffer
 
     def write(self, data):
+        """TODO"""
         cdef array.array write_buffer = array.array('b', data)
         deref(self._pipe._pipe.ends[1]).write(
             write_buffer.data.as_voidptr,
@@ -2306,12 +2344,15 @@ cdef class TwoPartyClient:
         return sock
 
     cpdef bootstrap(self) except +reraise_kj_exception:
+        """TODO"""
         return _CapabilityClient()._init(helpers.bootstrapHelper(deref(self.thisptr)), self)
 
     cpdef on_disconnect(self) except +reraise_kj_exception:
+        """TODO"""
         return _VoidPromise()._init(deref(self._network.thisptr).onDisconnect())
 
 cdef class TwoPartyServer:
+    """TODO"""
     cdef RpcSystem * thisptr
     cdef public _TwoPartyVatNetwork _network
     cdef public object _orig_stream, _server_socket, _disconnect_promise
@@ -2359,6 +2400,7 @@ cdef class TwoPartyServer:
         self._disconnect_promise = self.on_disconnect().then(self._decref)
 
     async def read(self, bufsize):
+        """TODO"""
         cdef AsyncIoStreamReadHelper *reader = new AsyncIoStreamReadHelper(
             self._pipe._pipe.ends[1].get(),
             &self._pipe._event_loop.thisptr.waitScope,
@@ -2374,6 +2416,7 @@ cdef class TwoPartyServer:
         return read_buffer
 
     async def write(self, data):
+        """TODO"""
         cdef array.array write_buffer = array.array('b', data)
         deref(self._pipe._pipe.ends[1]).write(
             write_buffer.data.as_voidptr,
@@ -2404,26 +2447,32 @@ cdef class TwoPartyServer:
         del self._task_set
 
     cpdef on_disconnect(self) except +reraise_kj_exception:
+        """TODO"""
         return _VoidPromise()._init(deref(self._network.thisptr).onDisconnect())
 
     def poll_once(self):
+        """TODO"""
         return poll_once()
 
     async def poll_forever(self):
+        """TODO"""
         while True:
             poll_once()
             await asyncio.sleep(0.01)
 
     cpdef run_forever(self):
+        """TODO"""
         if self.port_promise is None:
             raise KjException("You must pass a string as the socket parameter in __init__ to use this function")
 
         wait_forever()
 
     cpdef bootstrap(self) except +reraise_kj_exception:
+        """TODO"""
         return _CapabilityClient()._init(helpers.bootstrapHelperServer(deref(self.thisptr)), self)
 
     property port:
+        """TODO"""
         def __get__(self):
             if self._port is None:
                 self._port = self.port_promise.wait()
@@ -2432,9 +2481,11 @@ cdef class TwoPartyServer:
                 return self._port
 
 cdef class _AsyncIoStream:
+    """TODO"""
     cdef Own[AsyncIoStream] thisptr
 
 cdef class _TwoWayPipe:
+    """TODO"""
     cdef _EventLoop _event_loop
     cdef TwoWayPipe _pipe
 
@@ -2447,6 +2498,7 @@ cdef class _TwoWayPipe:
         self._pipe = self._event_loop.makeTwoWayPipe()
 
 cdef class _FdAsyncIoStream(_AsyncIoStream):
+    """TODO"""
     cdef _EventLoop _event_loop
 
     def __init__(self, int fd):
@@ -2461,6 +2513,7 @@ cdef class PyAsyncIoStream(_AsyncIoStream):
         pass
 
 cdef class PromiseFulfillerPair:
+    """TODO"""
     cdef Own[C_PromiseFulfillerPair] thisptr
     cdef public bint is_consumed
     cdef public _VoidPromise promise
@@ -2471,26 +2524,33 @@ cdef class PromiseFulfillerPair:
         self.promise = _VoidPromise()._init(moveVoidPromise(deref(self.thisptr).promise))
 
     cpdef fulfill(self):
+        """TODO"""
         deref(deref(self.thisptr).fulfiller).fulfill()
 
 cdef class _Schema:
+    """TODO"""
     cdef _init(self, C_Schema other):
         self.thisptr = other
         return self
 
     cpdef as_const_value(self):
+        """TODO"""
         return to_python_reader(<C_DynamicValue.Reader>self.thisptr.asConst(), self)
 
     cpdef as_struct(self):
+        """TODO"""
         return _StructSchema()._init(self.thisptr.asStruct())
 
     cpdef as_interface(self):
+        """TODO"""
         return _InterfaceSchema()._init(self.thisptr.asInterface())
 
     cpdef as_enum(self):
+        """TODO"""
         return _EnumSchema()._init(self.thisptr.asEnum())
 
     cpdef get_proto(self):
+        """TODO"""
         return _NodeReader().init(self.thisptr.getProto())
 
     property node:
@@ -2499,6 +2559,7 @@ cdef class _Schema:
             return _DynamicStructReader()._init(self.thisptr.getProto(), self)
 
 cdef class _StructSchema:
+    """TODO"""
     cdef C_StructSchema thisptr
     cdef object __fieldnames, __union_fields, __non_union_fields, __fields, __getters
     cdef list __fields_list
@@ -2584,6 +2645,7 @@ cdef class _StructSchema:
         return '<schema for %s>' % self.node.displayName
 
 cdef typeAsSchema(capnp.SchemaType fieldType):
+    """TODO"""
     # TODO(soon): make sure this is memory safe
     if fieldType.isInterface():
         return _InterfaceSchema()._init(fieldType.asInterface())
@@ -2592,7 +2654,7 @@ cdef typeAsSchema(capnp.SchemaType fieldType):
     elif fieldType.isEnum():
         return _EnumSchema()._init(fieldType.asEnum())
     elif fieldType.isList():
-        return ListSchema()._init(fieldType.asList())
+        return _ListSchema()._init(fieldType.asList())
     else:
         raise KjException("Schema type is unknown")
 
@@ -2811,14 +2873,14 @@ cdef _SchemaType _any_pointer = _SchemaType()
 _any_pointer.thisptr = capnp.SchemaType(capnp.TypeWhichANY_POINTER)
 types.AnyPointer = _any_pointer
 
-cdef class ListSchema:
+cdef class _ListSchema:
     cdef C_ListSchema thisptr
 
     def __init__(self, schema=None):
         cdef _StructSchema ss
         cdef _EnumSchema es
         cdef _InterfaceSchema iis
-        cdef ListSchema ls
+        cdef _ListSchema ls
         cdef _SchemaType st
 
         if schema is not None:
@@ -2837,7 +2899,7 @@ cdef class ListSchema:
             elif typeSchema is _InterfaceSchema:
                 iis = s
                 self.thisptr = capnp.listSchemaOfInterface(iis.thisptr)
-            elif typeSchema is ListSchema:
+            elif typeSchema is _ListSchema:
                 ls = s
                 self.thisptr = capnp.listSchemaOfList(ls.thisptr)
             elif typeSchema is _SchemaType:
@@ -2863,6 +2925,7 @@ cdef class _ParsedSchema(_Schema):
         return self
 
     cpdef get_nested(self, name):
+        """TODO"""
         return _ParsedSchema()._init_child(self.thisptr_child.getNested(name))
 
 class _StructABCMeta(type):
@@ -2881,6 +2944,9 @@ class _StructModuleWhich(object):
     pass
 
 class _StructModule(object):
+    """
+    TODO
+    """
     def __init__(self, schema, name):
         self.schema = schema
 
@@ -3060,17 +3126,9 @@ class _StructModule(object):
         :rtype: :class:`_DynamicStructBuilder`
         """
         return _new_message(self, kwargs, num_first_segment_words)
-    def from_dict(self, kwargs):
-        '.. warning:: This method is deprecated and will be removed in the 0.5 release. Use the :meth:`new_message` function instead with **kwargs'
-        _warnings.warn('This method is deprecated and will be removed in the 0.5 release. Use the :meth:`new_message` function instead with **kwargs', UserWarning)
-        return _new_message(self, kwargs, None)
-    def from_object(self, obj):
-        '.. warning:: This method is deprecated and will be removed in the 0.5 release. Use the :meth:`_DynamicStructReader.as_builder` or :meth:`_DynamicStructBuilder.copy` functions instead'
-        _warnings.warn('This method is deprecated and will be removed in the 0.5 release. Use the :meth:`_DynamicStructReader.as_builder` or :meth:`_DynamicStructBuilder.copy` functions instead', UserWarning)
-        builder = _MallocMessageBuilder()
-        return builder.set_root(obj)
 
 class _InterfaceModule(object):
+    """TODO"""
     def __init__(self, schema, name):
         def server_init(server_self):
             pass
@@ -3084,6 +3142,7 @@ class _InterfaceModule(object):
         return _DynamicCapabilityServer(self.schema, server)
 
 class _EnumModule(object):
+    """TODO"""
     def __init__(self, schema, name):
         self.schema = schema
         for name, val in schema.enumerants.items():
@@ -3099,6 +3158,7 @@ cdef class _StringArrayPtr:
         free(self.thisptr)
 
     cdef ArrayPtr[StringPtr] asArrayPtr(self) except +reraise_kj_exception:
+        """TODO"""
         return ArrayPtr[StringPtr](self.thisptr, self.size)
 
 
@@ -3331,6 +3391,7 @@ cdef class _MessageBuilder:
             return self.get_root(value.schema)
 
     cpdef get_segments_for_output(self) except +reraise_kj_exception:
+        """TODO"""
         segments = self.thisptr.getSegmentsForOutput()
         res = []
         cdef const char* ptr
@@ -3975,6 +4036,7 @@ def load(file_name, display_name=None, imports=[]):
     return _global_schema_parser.load(file_name, display_name, imports)
 
 class _Loader:
+    """TODO"""
     def __init__(self, fullname, path, additional_paths):
         self.fullname = fullname
         self.path = path
@@ -3987,6 +4049,7 @@ class _Loader:
         self.additional_paths = additional_paths
 
     def load_module(self, fullname):
+        """TODO"""
         assert self.fullname == fullname, (
             "invalid module, expected %s, got %s" % (
             self.fullname, fullname))
@@ -3999,10 +4062,12 @@ class _Loader:
         return module
 
 class _Importer:
+    """TODO"""
     def __init__(self, additional_paths):
         self.extension = '.capnp'
         self.additional_paths = additional_paths
     def find_module(self, fullname, package_path=None):
+        """TODO"""
         if fullname in _sys.modules: # Don't allow re-imports
             return None
 

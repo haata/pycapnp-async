@@ -3,5 +3,7 @@ cython
 setuptools
 pkgconfig
 pytest
+sphinx
+sphinx-rtd-theme
 tox
 wheel
