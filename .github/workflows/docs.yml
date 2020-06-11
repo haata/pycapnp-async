@@ -6,9 +6,19 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - uses: ammaraskar/sphinx-action@master
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v1
       with:
-        docs-folder: "."
-        pre-build-command: "apt-get update -y && apt-get install -y cmake g++ capnproto pkg-config && pip install -r requirements.txt"
-        build-command: "sphinx-multiversion docs build/html"
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Build pycapnp and install
+      run: |
+        python setup.py build
+        pip install .
+    - name: Build documentation
+      run: |
+        sphinx-multiversion docs build/html
