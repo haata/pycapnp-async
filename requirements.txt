@@ -4,6 +4,6 @@ setuptools
 pkgconfig
 pytest
 sphinx
-sphinx-rtd-theme
+sphinx-multiversion
 tox
 wheel
