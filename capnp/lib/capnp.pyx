@@ -12,27 +12,28 @@ cimport cython
 from capnp.helpers.helpers cimport AsyncIoStreamReadHelper, init_capnp_api
 from capnp.includes.capnp_cpp cimport AsyncIoStream, WaitScope, PyPromise, VoidPromise
 
-from libc.stdlib cimport malloc, free
-from libc.string cimport memcpy
-from cython.operator cimport dereference as deref
-from cpython.exc cimport PyErr_Clear
 from cpython cimport array, Py_buffer, PyObject_CheckBuffer
 from cpython.buffer cimport PyBUF_SIMPLE, PyBUF_WRITABLE
+from cpython.exc cimport PyErr_Clear
+from cython.operator cimport dereference as deref
+from libc.stdlib cimport malloc, free
+from libc.string cimport memcpy
 
-from types import ModuleType as _ModuleType
-import os as _os
-import sys as _sys
-import traceback as _traceback
-from functools import partial as _partial
-import warnings as _warnings
-import inspect as _inspect
-from operator import attrgetter as _attrgetter
-import threading as _threading
-import socket as _socket
-import random as _random
-import collections as _collections
 import array
 import asyncio
+import collections as _collections
+import inspect as _inspect
+import os as _os
+import random as _random
+import socket as _socket
+import sys as _sys
+import threading as _threading
+import traceback as _traceback
+import warnings as _warnings
+
+from types import ModuleType as _ModuleType
+from operator import attrgetter as _attrgetter
+from functools import partial as _partial
 
 _CAPNP_VERSION_MAJOR = capnp.CAPNP_VERSION_MAJOR
 _CAPNP_VERSION_MINOR = capnp.CAPNP_VERSION_MINOR
@@ -4139,12 +4140,17 @@ def add_import_hook(additional_paths=[]):
     # Highest priority at position 0
     extra_paths = [
         _os.path.join(_os.path.dirname(__file__), '..'), # Built-in (only used if bundled)
-        '/usr/local/include/capnp', # Common macOS brew location
-        '/usr/include/capnp', # Common posix location
+        # Common macOS brew location
+        '/usr/local/include/capnp',
+        '/usr/local/include',
+        # Common posix location
+        '/usr/include/capnp',
+        '/usr/include',
     ]
     for path in extra_paths:
         if _os.path.isdir(path):
-            additional_paths.append(path)
+            if path not in additional_paths:
+                additional_paths.append(path)
 
     _importer = _Importer(additional_paths)
     _sys.meta_path.append(_importer)
