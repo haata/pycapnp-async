@@ -33,7 +33,7 @@ def start_status_thread(host):
 
     subscriber = StatusSubscriber()
     promise = cap.subscribeStatus(subscriber)
-    promise.wait()
+    promise.a_wait()
 
 
 def main(host):
@@ -45,11 +45,11 @@ def main(host):
     status_thread.start()
 
     print('main: {}'.format(time.time()))
-    cap.longRunning().wait()
+    cap.longRunning().a_wait()
     print('main: {}'.format(time.time()))
-    cap.longRunning().wait()
+    cap.longRunning().a_wait()
     print('main: {}'.format(time.time()))
-    cap.longRunning().wait()
+    cap.longRunning().a_wait()
     print('main: {}'.format(time.time()))
 
 
