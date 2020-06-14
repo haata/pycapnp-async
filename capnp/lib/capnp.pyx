@@ -28,6 +28,7 @@ import random as _random
 import socket as _socket
 import sys as _sys
 import threading as _threading
+import time as _time
 import traceback as _traceback
 import warnings as _warnings
 
@@ -1955,6 +1956,9 @@ cdef class _RemotePromise:
         if self.is_consumed:
             raise KjException('Promise was already used in a consuming operation. You can no longer use this Promise object')
 
+        # Polling internally rather than through libcapnp due to some issues with some Python versions on some OSs causing nesting issues
+        while not helpers.pollRemote(self.thisptr, deref(self._event_loop.thisptr).waitScope):
+            _time.sleep(0.01)
         ret = self._wait()
         self.is_consumed = True
         return ret
