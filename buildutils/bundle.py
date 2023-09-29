@@ -26,7 +26,7 @@ pjoin = os.path.join
 #
 
 
-bundled_version = (0, 10, 3)
+bundled_version = (1, 0, 1)
 libcapnp_name = "capnproto-c++-%i.%i.%i.tar.gz" % (bundled_version)
 libcapnp_url = "https://capnproto.org/" + libcapnp_name
 

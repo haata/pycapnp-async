@@ -17,6 +17,7 @@ jobs:
         pip install -r requirements.txt
     - name: Build pycapnp and install
       run: |
+        TODO change to pip install
         python setup.py build
         pip install .
     - name: Build documentation

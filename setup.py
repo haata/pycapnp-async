@@ -62,6 +62,7 @@ changelog = "\nChangelog\n=============\n" + changelog
 long_description += changelog
 
 
+# TODO - Make sure pip install is putting these in the correct spot (remove this hack)
 class clean(_clean):
     """
     Clean command, invoked with `python setup.py clean`

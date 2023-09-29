@@ -16,7 +16,7 @@
 * cmake (needed for bundled capnproto)
   - ninja (macOS + Linux)
   - Visual Studio 2017+
-* capnproto-0.10 (>=0.7.0 will also work if linking to system libraries)
+* capnproto-1.0 (>=0.7.0 will also work if linking to system libraries)
   - Not necessary if using bundled capnproto
 * Python development headers (i.e. Python.h)
   - Distributables from python.org include these, however they are usually in a separate package on Linux distributions
@@ -40,6 +40,7 @@ pip install .
 
 If you wish to install using the latest upstream C++ Cap'n Proto:
 
+TODO - How to use config options
 ```bash
 pip install \
     --install-option "--libcapnp-url" \
@@ -49,17 +50,13 @@ pip install \
 
 To force bundled python:
 
+TODO - How to use config options
 ```bash
 pip install --install-option "--force-bundled-libcapnp" .
 ```
 
-Slightly more prompt error messages using distutils rather than pip.
-
-```bash
-python setup.py install --force-bundled-libcapnp
-```
-
 The bundling system isn't that smart so it might be necessary to clean up the bundled build when changing versions:
+TODO - Make sure out-of-source builds are working correctly
 
 ```bash
 python setup.py clean
@@ -87,21 +84,6 @@ To test, use a pipenv (or install requirements.txt and run pytest manually).
 pip install pipenv
 pipenv install
 pipenv run pytest
-```
-
-
-### Binary Packages
-
-Building a dumb binary distribution:
-
-```bash
-python setup.py bdist_dumb
-```
-
-Building a Python wheel distributiion:
-
-```bash
-python setup.py bdist_wheel
 ```
 
 
