@@ -61,7 +61,7 @@ jobs:
           # auto-detected based on the Cython dependency.
           CIBW_SKIP: pp*
           CIBW_TEST_REQUIRES: pytest pytest-asyncio
-          CIBW_TEST_COMMAND: pytest {project}
+          CIBW_TEST_COMMAND: "rm -f /project/capnp/__init__.py && pytest {project}"
           # Only needed to make the macosx arm64 build work
           CMAKE_OSX_ARCHITECTURES: "${{ matrix.arch == 'arm64' && 'arm64' || '' }}"
 
